@@ -1,0 +1,20 @@
+# Fixed Ensemble Configuration
+ensemble:
+  name: "fixed_ensemble"
+  strategy: "weighted_average"
+  models:
+    - name: "efficientnet_b4"
+      config_path: "configs/efficientnet_b4.yaml"
+      weights_path: "models/efficientnet_b4/best.pt"
+      default_weight: 0.5
+    - name: "vit_b16"
+      config_path: "configs/vit_b16.yaml"
+      weights_path: "models/vit_b16/best.pt"
+      default_weight: 0.5
+
+optimization:
+  optimize_alpha: true
+  alpha_search_range: [0.0, 1.0]
+  alpha_step: 0.05
+  target_metric: "val_f1"
+  evaluation_split: "val"

@@ -1,9 +1,43 @@
+# Python Bytecode and Cache
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments
 .env
 .venv/
 venv/
+ENV/
+env/
+
+# Jupyter Checkpoints
 .ipynb_checkpoints/
-.pytest_cache/
+
+# IDE Configuration
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Large Datasets & Raw files (do not push to git)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/external/*
+!data/external/.gitkeep
+
+# Large Checkpoints (>100MB)
+models/**/*.pt
+models/**/*.pth
+models/**/*.onnx
+!models/**/config.yaml
+!models/**/.gitkeep
+
+# Experiment logs and temp files
+experiments/**/runs/
 *.log

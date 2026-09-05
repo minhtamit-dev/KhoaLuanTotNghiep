@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pneumonia-adaptive-ensemble"
+version = "1.0.0"
+description = "Adaptive CNN-ViT Ensemble for Pneumonia Detection from Chest X-ray Images"
+readme = "README.md"
+authors = [{ name = "minhtamit-dev" }]
+requires-python = ">=3.9"
+dependencies = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "timm>=0.9.0",
+    "albumentations>=1.3.0",
+    "opencv-python>=4.8.0",
+    "scikit-learn>=1.3.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "pyyaml>=6.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "streamlit>=1.28.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "api*"]

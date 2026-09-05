@@ -1,0 +1,26 @@
+# Adaptive Ensemble Configuration
+ensemble:
+  name: "adaptive_ensemble"
+  strategy: "adaptive_fusion" # Options: confidence_based, uncertainty_based, hybrid
+  
+  models:
+    - name: "efficientnet_b4"
+      config_path: "configs/efficientnet_b4.yaml"
+      weights_path: "models/efficientnet_b4/best.pt"
+    - name: "vit_b16"
+      config_path: "configs/vit_b16.yaml"
+      weights_path: "models/vit_b16/best.pt"
+
+confidence_method:
+  name: "softmax_confidence"
+  temperature: 1.0
+  use_temperature_scaling: true
+
+uncertainty_method:
+  name: "entropy" # Options: entropy, mc_dropout
+  mc_samples: 10
+  tau: 0.5 # Softmax temperature for inverse uncertainty
+
+fusion:
+  hybrid_beta: 0.5 # Balance between confidence and uncertainty weights
+  min_weight_threshold: 0.1 # Minimum weight assigned to any branch

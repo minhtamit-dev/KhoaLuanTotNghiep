@@ -1,0 +1,37 @@
+# Experiments Orchestration Configuration
+experiment:
+  project_name: "Pneumonia-Adaptive-Ensemble"
+  version: "1.0.0"
+  random_seed: 42
+  
+  runs:
+    - name: "baseline_efficientnet_b4"
+      type: "single"
+      model_config: "configs/efficientnet_b4.yaml"
+    - name: "baseline_vit_b16"
+      type: "single"
+      model_config: "configs/vit_b16.yaml"
+    - name: "fixed_ensemble"
+      type: "ensemble"
+      ensemble_config: "configs/fixed_ensemble.yaml"
+    - name: "adaptive_ensemble_confidence"
+      type: "ensemble"
+      ensemble_config: "configs/adaptive_ensemble.yaml"
+      override_strategy: "confidence_based"
+    - name: "adaptive_ensemble_uncertainty"
+      type: "ensemble"
+      ensemble_config: "configs/adaptive_ensemble.yaml"
+      override_strategy: "uncertainty_based"
+    - name: "adaptive_ensemble_hybrid"
+      type: "ensemble"
+      ensemble_config: "configs/adaptive_ensemble.yaml"
+      override_strategy: "hybrid"
+
+output_dirs:
+  metrics: "results/metrics"
+  plots: "results/plots"
+  roc_curves: "results/roc_curves"
+  confusion_matrices: "results/confusion_matrices"
+  calibration: "results/calibration"
+  heatmaps: "results/heatmaps"
+  tables: "results/tables"

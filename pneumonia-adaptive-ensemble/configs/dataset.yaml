@@ -1,0 +1,42 @@
+# Dataset Configuration
+dataset:
+  name: "Chest-X-Ray-Pneumonia"
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  splits_dir: "data/splits"
+  external_dir: "data/external"
+  
+  classes:
+    - "NORMAL"
+    - "PNEUMONIA"
+  num_classes: 2
+  
+  split_ratios:
+    train: 0.70
+    val: 0.15
+    test: 0.15
+  
+  stratify_by_patient: true
+  random_state: 42
+
+loader:
+  batch_size: 16
+  num_workers: 4
+  pin_memory: true
+  shuffle_train: true
+
+preprocessing:
+  image_size_cnn: 380
+  image_size_vit: 224
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+  use_clahe: true
+  clahe_clip_limit: 2.0
+  clahe_tile_grid_size: [8, 8]
+
+augmentation:
+  horizontal_flip_prob: 0.5
+  rotation_limit: 10
+  shift_scale_rotate_prob: 0.5
+  brightness_contrast_prob: 0.3
+  gaussian_noise_prob: 0.2
