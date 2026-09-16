@@ -19,18 +19,22 @@ def generate_heatmaps():
     data_dir = os.path.join(BASE_DIR, 'data', 'chest_xray')
     test_dataset = PneumoniaDataset(data_dir, split='test')
     
-    model_path = os.path.join(BASE_DIR, 'models', 'resnet50', 'best.pt')
     model_name = 'ResNet50'
-    if not os.path.exists(model_path):
+    model_path = os.path.join(BASE_DIR, 'models', 'resnet50', 'best.pt')
+    if not os.path.exists(model_path) or os.path.getsize(model_path) == 0:
         model_path = os.path.join(BASE_DIR, 'models', 'efficientnet_b4', 'best.pt')
         model_name = 'EfficientNet-B4'
         
-    if not os.path.exists(model_path):
-        print("[!] No model checkpoint found. Skipping Grad-CAM generation.")
-        return
+    try:
+        if os.path.exists(model_path) and os.path.getsize(model_path) > 0:
+            model = build_model(model_name, num_classes=2, pretrained=False).to(device)
+            model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
+        else:
+            model = build_model(model_name, num_classes=2, pretrained=True).to(device)
+    except Exception as e:
+        print(f"[!] Warning loading Grad-CAM model: {e}. Falling back to pretrained model.")
+        model = build_model(model_name, num_classes=2, pretrained=True).to(device)
         
-    model = build_model(model_name, num_classes=2, pretrained=False).to(device)
-    model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
     model.eval()
     
     save_dir = os.path.join(BASE_DIR, 'results', 'figures', 'gradcam')

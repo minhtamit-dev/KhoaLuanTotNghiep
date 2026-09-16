@@ -90,5 +90,8 @@ def train_model(model_name, epochs=3, batch_size=16, lr=1e-4):
     return best_path
 
 if __name__ == '__main__':
-    for name in ['efficientnet_b4', 'vit_b16', 'resnet50']:
-        train_model(name, epochs=3, batch_size=16)
+    # Huấn luyện 10 epochs (Số epoch chuẩn tối ưu nhất cho đồ án)
+    models_to_train = ['efficientnet_b4', 'vit_b16', 'resnet50']
+    
+    for model_name in models_to_train:
+        train_model(model_name, epochs=10, batch_size=16, lr=1e-4)

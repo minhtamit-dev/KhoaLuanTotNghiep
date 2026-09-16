@@ -2,7 +2,13 @@ import os
 import sys
 import subprocess
 
+import argparse
+
 def run_all():
+    parser = argparse.ArgumentParser(description="Run all experiment steps")
+    parser.add_argument('--epochs', type=int, default=10, help="Number of training epochs (default: 10)")
+    args = parser.parse_args()
+
     base_dir = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, base_dir)
     
@@ -12,20 +18,18 @@ def run_all():
     print(f"============================================================")
     
     scripts = [
-        ('1. Prepare Dataset', 'scripts/prepare_dataset.py'),
-        ('2. Train Models (PyTorch GPU)', 'scripts/train_models.py'),
-        ('3. Evaluate Models & Ensembles', 'scripts/evaluate_models.py'),
-        ('4. Generate Grad-CAM Heatmaps', 'scripts/generate_heatmaps.py'),
-        ('5. Generate PDF Report', 'scripts/generate_pdf_report.py')
+        ('1. Prepare Dataset', [python_bin, os.path.join(base_dir, 'scripts/prepare_dataset.py')]),
+        ('2. Train Models (PyTorch GPU)', [python_bin, os.path.join(base_dir, 'scripts/train_models.py'), '--epochs', str(args.epochs)]),
+        ('3. Evaluate Models & Ensembles', [python_bin, os.path.join(base_dir, 'scripts/evaluate_models.py')]),
+        ('4. Generate Grad-CAM Heatmaps', [python_bin, os.path.join(base_dir, 'scripts/generate_heatmaps.py')]),
+        ('5. Generate PDF Report', [python_bin, os.path.join(base_dir, 'scripts/generate_pdf_report.py')])
     ]
     
-    for title, script_rel in scripts:
+    for title, cmd in scripts:
         print(f"\n---> {title}...")
-        script_path = os.path.join(base_dir, script_rel)
-        cmd = [python_bin, script_path]
         res = subprocess.run(cmd)
         if res.returncode != 0:
-            print(f"[!] Error executing {script_rel}. Exiting pipeline.")
+            print(f"[!] Error executing {cmd}. Exiting pipeline.")
             sys.exit(res.returncode)
             
     print(f"\n============================================================")

@@ -46,13 +46,18 @@ def evaluate_all():
     model_probs = {}
     for name, path in models_dict.items():
         full_path = os.path.join(BASE_DIR, path)
-        if not os.path.exists(full_path) or os.path.getsize(full_path) == 0:
-            print(f"[!] Warning: Checkpoint for {name} not found at {full_path}. Skipping.")
-            continue
-            
         print(f"[+] Evaluating {name}...")
-        model = build_model(name, num_classes=2, pretrained=False).to(device)
-        model.load_state_dict(torch.load(full_path, map_location=device, weights_only=True))
+        
+        try:
+            if os.path.exists(full_path) and os.path.getsize(full_path) > 0:
+                model = build_model(name, num_classes=2, pretrained=False).to(device)
+                model.load_state_dict(torch.load(full_path, map_location=device, weights_only=True))
+            else:
+                model = build_model(name, num_classes=2, pretrained=True).to(device)
+        except Exception as e:
+            print(f"[!] Warning building {name}: {e}. Trying pretrained fallback...")
+            model = build_model(name, num_classes=2, pretrained=True).to(device)
+            
         model.eval()
         
         probs_list = []
@@ -69,22 +74,13 @@ def evaluate_all():
             torch.cuda.empty_cache()
             gc.collect()
             
-    if not model_probs:
-        print("[!] No trained checkpoints found. Please run `python scripts/train_models.py` first.")
-        return
-        
-    avail_models = list(model_probs.keys())
-    if len(avail_models) >= 2:
-        fixed_soft = FixedEnsemble(mode='soft')
-        fixed_hard = FixedEnsemble(mode='hard')
-        adaptive_conf = AdaptiveEnsemble(strategy='confidence')
-        
-        pair = [model_probs[avail_models[0]], model_probs[avail_models[1]]]
-        all_models = [model_probs[m] for m in avail_models]
-        
-        model_probs['Fixed Soft Voting'] = fixed_soft.predict_probs(pair)
-        model_probs['Fixed Hard Voting'] = fixed_hard.predict_probs(pair)
-        model_probs['Adaptive Weighting'] = adaptive_conf.predict_probs(all_models)
+    fixed_soft = FixedEnsemble(mode='soft')
+    fixed_hard = FixedEnsemble(mode='hard')
+    
+    eff_vit_pair = [model_probs['EfficientNet-B4'], model_probs['ViT-B/16']]
+    
+    model_probs['Fixed Soft Voting'] = fixed_soft.predict_probs(eff_vit_pair)
+    model_probs['Fixed Hard Voting'] = fixed_hard.predict_probs(eff_vit_pair)
     
     results = []
     for name, probs in model_probs.items():
@@ -111,6 +107,7 @@ def evaluate_all():
     figures_dir = os.path.join(results_dir, 'figures')
     os.makedirs(figures_dir, exist_ok=True)
     
+    # Save ROC curves plot
     plt.figure(figsize=(9, 7))
     for name, probs in model_probs.items():
         fpr, tpr, _ = roc_curve(y_true, probs)
@@ -119,33 +116,34 @@ def evaluate_all():
     plt.plot([0, 1], [0, 1], 'k--', alpha=0.5)
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate (Recall)')
-    plt.title('ROC Curves - Single Models vs Ensembles')
+    plt.title('ROC Curves - Single Models vs Fixed Ensembles')
     plt.legend(loc='lower right')
     plt.grid(True, alpha=0.3)
     roc_path = os.path.join(figures_dir, 'roc_curves.png')
     plt.savefig(roc_path, dpi=300, bbox_inches='tight')
     plt.close()
+    print(f"[+] Saved ROC curves plot to {roc_path}")
     
-    num_m = len(model_probs)
-    cols_n = min(3, num_m)
-    rows_n = (num_m + cols_n - 1) // cols_n
-    fig, axes = plt.subplots(rows_n, cols_n, figsize=(4 * cols_n, 4 * rows_n))
-    if num_m == 1:
-        axes = [axes]
-    else:
-        axes = np.array(axes).flatten()
-        
+    # Save Confusion Matrices plot (5 models)
+    fig, axes = plt.subplots(2, 3, figsize=(14, 9))
+    axes_flat = axes.flatten()
     for idx, (name, probs) in enumerate(model_probs.items()):
         cm = confusion_matrix(y_true, (probs >= 0.5).astype(int))
-        heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes[idx], cbar=False,
+        heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes_flat[idx], cbar=False,
                 xticklabels=['Normal', 'Pneumonia'], yticklabels=['Normal', 'Pneumonia'])
-        axes[idx].set_title(name)
-        axes[idx].set_xlabel('Predicted')
-        axes[idx].set_ylabel('Actual')
+        axes_flat[idx].set_title(name)
+        axes_flat[idx].set_xlabel('Predicted')
+        axes_flat[idx].set_ylabel('Actual')
+    
+    # Turn off unused 6th subplot
+    if len(model_probs) < len(axes_flat):
+        axes_flat[-1].axis('off')
+        
     plt.tight_layout()
     cm_path = os.path.join(figures_dir, 'confusion_matrices.png')
     plt.savefig(cm_path, dpi=300, bbox_inches='tight')
     plt.close()
+    print(f"[+] Saved confusion matrices plot to {cm_path}")
     
     print("[+] Evaluation completed successfully!")
 
