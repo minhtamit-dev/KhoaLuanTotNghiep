@@ -12,7 +12,7 @@
 
 ## 📋 Tổng quan Dự án
 
-Dự án triển khai và so sánh hiệu năng giữa các mô hình học sâu đơn lẻ (**EfficientNet-B4**, **ViT-B/16**, **ResNet50**) và các phương pháp kết hợp mô hình (**Fixed Soft/Hard Voting**, **Adaptive Ensemble dựa trên Confidence & Entropy**) trên bộ dữ liệu **Chest X-Ray Pneumonia (Kaggle)** với đầy đủ giao diện Web chẩn đoán trực quan và tự động xuất Báo cáo PDF.
+Dự án triển khai và so sánh hiệu năng giữa các mô hình học sâu đơn lẻ (**EfficientNet-B4**, **ViT-B/16**, **ResNet50**) và các phương pháp kết hợp mô hình (**Fixed Soft/Hard Voting**, **Weighted Voting**, **Adaptive Ensemble**) trên bộ dữ liệu **Chest X-Ray Pneumonia (Kaggle)** với đầy đủ giao diện Web chẩn đoán trực quan và giải thích bằng **Grad-CAM**.
 
 ---
 
@@ -20,32 +20,27 @@ Dự án triển khai và so sánh hiệu năng giữa các mô hình học sâu
 
 | Mô hình / Phương pháp | Accuracy | Precision | Recall (Sensitivity) | Specificity | F1-Score | ROC-AUC |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **EfficientNet-B4** | 85.90% | 83.26% | 96.92% | 67.52% | 0.8957 | 0.9401 |
-| **ViT-B/16** | 88.14% | 84.20% | **99.74%** | 68.80% | 0.9131 | **0.9799** |
-| **ResNet50** | **91.99%** | **89.91%** | 98.21% | **81.62%** | **0.9387** | 0.9708 |
-| **Fixed Soft Voting (EffNet + ViT)** | 87.66% | 83.95% | 99.23% | 68.38% | 0.9095 | 0.9710 |
-| **Fixed Hard Voting (EffNet + ViT)** | 90.22% | 88.34% | 97.18% | 78.63% | 0.9255 | 0.8791 |
-| **Adaptive Ensemble (Confidence)** | 87.66% | 83.95% | 99.23% | 68.38% | 0.9095 | 0.9713 |
+| **EfficientNet-B4** | 85.58% | 81.78% | 98.97% | 63.25% | 0.8956 | 0.9654 |
+| **ViT-B/16** | 84.46% | 80.33% | 99.49% | 59.40% | 0.8889 | **0.9722** |
+| **ResNet50** | 84.29% | 80.04% | **99.74%** | 58.55% | 0.8881 | 0.9652 |
+| **Fixed Soft Voting (EffNet + ViT)** | 85.10% | 81.00% | 99.49% | 61.11% | 0.8930 | 0.9700 |
+| **Ensemble (ResNet50 + ViT)** | 84.62% | 80.37% | **99.74%** | 59.40% | 0.8902 | 0.9663 |
+| **Tri-Ensemble (EffNet + ViT + ResNet)** | **85.42%** | **81.21%** | **99.74%** | **61.54%** | **0.8953** | 0.9708 |
 
-> 📌 **Nhận xét:**  
-> - **ViT-B/16** đạt Độ nhạy (Recall) cao nhất (**99.74%**), chỉ bỏ sót 1 ca bệnh thực tế trong 390 ca.  
-> - **ResNet50** đạt Độ chính xác (Accuracy) cao nhất (**91.99%**) và F1-Score (**0.9387**).  
-> - Mô hình Ensemble giúp cân bằng hiệu quả giữa Độ nhạy và Độ đặc hiệu.
+> 📌 **Tại ngưỡng tối ưu Youden (Validation th=0.61):** `Fixed Soft Voting (EffNet + ViT)` đạt **Accuracy 87.34%**, **F1-Score 0.9074** và **Specificity 67.52%**, vượt trội so với các mô hình đơn lẻ.
 
 ---
 
 ## 🌐 1. Hướng dẫn Mở Giao diện Web (Streamlit Web UI)
 
-Ứng dụng Web hỗ trợ kéo thả ảnh X-quang, chẩn đoán bằng mô hình Ensemble và hiển thị bản đồ nhiệt **Grad-CAM** giải thích vùng tổn thương.
+Ứng dụng Web hỗ trợ kéo thả ảnh X-quang, chẩn đoán bằng mô hình Ensemble và hiển thị bản đồ nhiệt **Grad-CAM & ViT Attention** giải thích vùng tổn thương.
 
 ```bash
-# 1. Di chuyển vào thư mục dự án
-cd /home/bonkerzz/Documents/doantn/KhoaLuanTotNghiep/pneumonia-adaptive-ensemble
+# 1. Kích hoạt môi trường ảo (nếu có)
+# Windows: .\.venv\Scripts\Activate.ps1
+# Linux:   source .venv/bin/activate
 
-# 2. Kích hoạt venv
-source /home/bonkerzz/Documents/doantn/venv/bin/activate
-
-# 3. Mở ứng dụng Web
+# 2. Mở ứng dụng Web
 streamlit run app.py
 ```
 👉 Mở trình duyệt truy cập: **`http://localhost:8501`**
@@ -54,7 +49,7 @@ streamlit run app.py
 
 ## 🚀 2. Hướng dẫn Chạy Thực nghiệm 1-Click (Automated Pipeline)
 
-Tự động chạy toàn bộ quy trình từ tải dữ liệu $\rightarrow$ huấn luyện $\rightarrow$ đánh giá $\rightarrow$ vẽ Grad-CAM $\rightarrow$ biên dịch Báo cáo PDF:
+Tự động chạy toàn bộ quy trình từ tải dữ liệu $\rightarrow$ huấn luyện $\rightarrow$ đánh giá $\rightarrow$ vẽ Grad-CAM:
 
 ```bash
 python run_all.py
@@ -74,7 +69,10 @@ python scripts/train_models.py
 # Bước 3: Đánh giá & tính toán chỉ số (Xuất CSV + Biểu đồ ROC)
 python scripts/evaluate_models.py
 
-# Bước 4: Tạo bản đồ nhiệt Grad-CAM
+# Bước 4: Chạy kiểm thử 10 lần chạy & thống kê độ chính xác
+python scripts/run_10_evaluations.py
+
+# Bước 5: Tạo bản đồ nhiệt Grad-CAM & Attention
 python scripts/generate_heatmaps.py
 ```
 
