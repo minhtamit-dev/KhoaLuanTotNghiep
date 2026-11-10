@@ -29,11 +29,11 @@ def evaluate_all():
     val_dataset = PneumoniaDataset(data_dir, split='val')
     test_dataset = PneumoniaDataset(data_dir, split='test')
     
-    val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False, num_workers=2)
-    test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False, num_workers=2)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0, pin_memory=True)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=0, pin_memory=True)
     
-    y_test = np.array([label for _, label in test_dataset])
-    y_val = np.array([label for _, label in val_dataset]) if len(val_dataset) > 0 else y_test
+    y_test = np.array(test_dataset.labels)
+    y_val = np.array(val_dataset.labels) if len(val_dataset) > 0 else y_test
     
     print(f"[+] Loaded Val Dataset: {len(val_dataset)} images | Test Dataset: {len(test_dataset)} images")
     

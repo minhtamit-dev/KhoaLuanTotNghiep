@@ -1,0 +1,8 @@
+Mô hình / Phương pháp,Độ chính xác TB (Mean ± Std),Thấp nhất (Min),Cao nhất (Max),F1-Score TB,Specificity TB,ROC-AUC TB
+EfficientNet-B4,84.89% ± 1.10%,82.85%,87.02%,0.8917,60.77%,0.9609
+ViT-B/16,84.23% ± 1.46%,80.45%,85.74%,0.8877,58.67%,0.9689
+ResNet50,84.41% ± 1.06%,82.05%,86.06%,0.8892,58.45%,0.9602
+Fixed Soft Voting (EffNet + ViT),84.71% ± 1.33%,81.09%,86.06%,0.8907,59.96%,0.9659
+Fixed Hard Voting (EffNet + ViT),81.54% ± 1.36%,78.21%,83.81%,0.8714,50.77%,0.8397
+Ensemble (ResNet50 + ViT),84.50% ± 1.45%,80.77%,86.22%,0.8898,58.77%,0.9615
+Tri-Ensemble (EffNet + ViT + ResNet),85.26% ± 1.18%,82.53%,87.02%,0.8946,60.75%,0.9657

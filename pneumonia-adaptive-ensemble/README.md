@@ -76,9 +76,6 @@ python scripts/evaluate_models.py
 
 # Bước 4: Tạo bản đồ nhiệt Grad-CAM
 python scripts/generate_heatmaps.py
-
-# Bước 5: Biên dịch Báo cáo PDF nộp Giảng viên
-python scripts/generate_pdf_report.py
 ```
 
 ---
@@ -105,25 +102,23 @@ Hệ thống được thiết kế theo kiến trúc **Modular Factory**, cho ph
 
 ```text
 pneumonia-adaptive-ensemble/
-├── app.py                            # 🌐 Giao diện Web Streamlit minh họa đồ án
+├── app.py                            # 🌐 Giao diện Web Streamlit chẩn đoán & giải thích
 ├── run_all.py                        # 🚀 Entrypoint 1-click chạy tự động toàn bộ thực nghiệm
 ├── README.md                         # 📖 Hướng dẫn chi tiết & bảng kết quả
 ├── requirements.txt                  # 📦 Thư viện phụ thuộc Python
-├── CNTT-KLCN171_NguyenGiaKhang.pdf   # 📄 Báo cáo thực nghiệm định dạng PDF (Nhóm trưởng Nguyễn Gia Khang)
-├── CNTT-KLCN171_NguyenGiaKhang.docx  # 📄 Báo cáo thực nghiệm gốc định dạng Word
-├── thuc_nghiem_tong_ket.md          # 📝 Tổng kết chi tiết thực nghiệm (Markdown)
 ├── scripts/                          # 🛠️ Tập hợp các script thực thi độc lập
 │   ├── prepare_dataset.py            # Tải & liên kết bộ dữ liệu Kaggle
 │   ├── train_models.py               # Huấn luyện PyTorch GPU (EfficientNet, ViT, ResNet50)
 │   ├── evaluate_models.py            # Đánh giá các mô hình & Ensembles
-│   ├── generate_heatmaps.py          # Trực quan hóa Grad-CAM
-│   └── generate_pdf_report.py        # Xuất file báo cáo PDF
+│   ├── run_10_evaluations.py         # Kiểm thử 10 lần chạy & thống kê độ chính xác
+│   └── generate_heatmaps.py          # Trực quan hóa Grad-CAM & Attention Maps
 ├── src/                              # 🧠 Mã nguồn lõi Python
-│   ├── data/dataset.py               # PyTorch Dataset wrapper
+│   ├── data/dataset.py               # PyTorch Dataset wrapper (Patient-aware split)
 │   ├── models/factory.py             # Model Factory linh hoạt
-│   ├── evaluation/metrics.py         # Hàm tính toán 7 độ đo y khoa
+│   ├── evaluation/metrics.py         # Hàm tính toán độ đo y khoa & Youden threshold
 │   ├── ensemble/                     # Module Soft/Hard Voting & Adaptive Weighting
-│   └── explainability/gradcam.py     # Thuật toán Grad-CAM thuần PyTorch
+│   ├── explainability/gradcam.py     # Thuật toán Grad-CAM và ViT Attention
+│   └── utils/database.py             # SQLite cơ sở dữ liệu y tế & khóa ngoại
 ├── models/                           # 💾 Trọng số mô hình (.pt)
 └── results/                          # 📊 Kết quả CSV, Biểu đồ ROC, Confusion Matrix & Grad-CAM
 ```

@@ -17,9 +17,6 @@ seaborn==0.13.2
 opencv-python==4.11.0.86
 pillow==11.2.1
 
-# Dataset download, reports and web UI
+# Dataset download & Web UI
 kagglehub==0.3.12
-python-docx==1.1.2
 streamlit==1.45.1
-
-pywin32; sys_platform == 'win32'

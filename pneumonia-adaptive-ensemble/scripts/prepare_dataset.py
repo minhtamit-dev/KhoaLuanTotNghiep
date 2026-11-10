@@ -23,6 +23,11 @@ def prepare_dataset():
     if os.path.exists(dataset_dir) or os.path.islink(dataset_dir):
         if os.path.islink(dataset_dir):
             os.unlink(dataset_dir)
+        elif sys.platform == 'win32':
+            try:
+                os.rmdir(dataset_dir)
+            except Exception:
+                shutil.rmtree(dataset_dir)
         else:
             shutil.rmtree(dataset_dir)
             
@@ -42,7 +47,12 @@ def prepare_dataset():
         
     print(f"[+] Found valid dataset directory at: {target_data}")
     os.makedirs(os.path.dirname(dataset_dir), exist_ok=True)
-    os.symlink(target_data, dataset_dir)
+    
+    if sys.platform == 'win32':
+        import _winapi
+        _winapi.CreateJunction(os.path.abspath(target_data), os.path.abspath(dataset_dir))
+    else:
+        os.symlink(target_data, dataset_dir)
         
     print(f"[+] Dataset successfully linked to: {dataset_dir}")
     return dataset_dir
